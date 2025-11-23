@@ -5,6 +5,20 @@ from geometry_msgs.msg import Twist
 import math
 
 class ObstacleAvoidance(Node):
+    # Sector angle offsets for obstacle detection (in scan array indices)
+    FRONT_SECTOR_RANGE = 30  # Check 30 degrees in front
+    LEFT_SECTOR_START = 60
+    LEFT_SECTOR_END = 120
+    RIGHT_SECTOR_START = 120
+    RIGHT_SECTOR_END = 60
+    
+    # Obstacle detection threshold in meters
+    OBSTACLE_THRESHOLD = 1.5
+    
+    # Movement parameters
+    FORWARD_SPEED = 0.3
+    TURN_SPEED = 0.5
+    
     def __init__(self):
         super().__init__('obstacle_avoidance')
         
@@ -19,12 +33,16 @@ class ObstacleAvoidance(Node):
             10)
         
         self.get_logger().info('Obstacle Avoidance Node Started')
+    
+    def filter_laser_ranges(self, msg):
+        """Filter out invalid laser scan readings (inf and nan)"""
+        return [r if not (math.isinf(r) or math.isnan(r)) else msg.range_max 
+                for r in msg.ranges]
 
     def listener_callback(self, msg):
         # 1. READ THE SENSOR
         # Filter out invalid readings (inf and nan)
-        ranges = [r if not (math.isinf(r) or math.isnan(r)) else msg.range_max 
-                  for r in msg.ranges]
+        ranges = self.filter_laser_ranges(msg)
         
         if not ranges:
             self.get_logger().warn('No valid laser scan data')
@@ -33,24 +51,23 @@ class ObstacleAvoidance(Node):
         # Get distances in different sectors
         # Front: center of the scan
         mid_index = len(ranges) // 2
-        front_range = 30  # Check 30 degrees in front
         
         # Front sector
-        front_start = max(0, mid_index - front_range)
-        front_end = min(len(ranges), mid_index + front_range)
+        front_start = max(0, mid_index - self.FRONT_SECTOR_RANGE)
+        front_end = min(len(ranges), mid_index + self.FRONT_SECTOR_RANGE)
         front_distance = min(ranges[front_start:front_end])
         
         # Left sector (assuming counterclockwise scan)
-        left_start = min(len(ranges) - 1, mid_index + 60)
-        left_end = min(len(ranges), mid_index + 120)
+        left_start = min(len(ranges) - 1, mid_index + self.LEFT_SECTOR_START)
+        left_end = min(len(ranges), mid_index + self.LEFT_SECTOR_END)
         if left_end > left_start:
             left_distance = min(ranges[left_start:left_end])
         else:
             left_distance = msg.range_max
         
         # Right sector
-        right_start = max(0, mid_index - 120)
-        right_end = max(0, mid_index - 60)
+        right_start = max(0, mid_index - self.RIGHT_SECTOR_START)
+        right_end = max(0, mid_index - self.RIGHT_SECTOR_END)
         if right_end > right_start:
             right_distance = min(ranges[right_start:right_end])
         else:
@@ -60,9 +77,7 @@ class ObstacleAvoidance(Node):
         cmd = Twist()
 
         # 2. THE LOGIC
-        obstacle_threshold = 1.5  # Stop if obstacle within 1.5m
-        
-        if front_distance < obstacle_threshold:
+        if front_distance < self.OBSTACLE_THRESHOLD:
             # OBSTACLE DETECTED! 🛑
             self.get_logger().info(f'Obstacle detected at {front_distance:.2f}m - Avoiding')
             # Stop forward motion
@@ -71,16 +86,16 @@ class ObstacleAvoidance(Node):
             # Turn towards the side with more space
             if left_distance > right_distance:
                 # Turn left
-                cmd.angular.z = 0.5
+                cmd.angular.z = self.TURN_SPEED
                 self.get_logger().info('Turning left')
             else:
                 # Turn right
-                cmd.angular.z = -0.5
+                cmd.angular.z = -self.TURN_SPEED
                 self.get_logger().info('Turning right')
         else:
             # PATH CLEAR! 🏎️
             # Drive forward
-            cmd.linear.x = 0.3
+            cmd.linear.x = self.FORWARD_SPEED
             cmd.angular.z = 0.0
             
         # 3. DRIVE

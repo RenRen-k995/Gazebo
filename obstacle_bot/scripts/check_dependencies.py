@@ -31,8 +31,8 @@ def main():
     all_ok = True
     
     for package, description in required_packages:
-        status = "✓" if check_package(package) else "✗"
         available = check_package(package)
+        status = "✓" if available else "✗"
         
         if not available:
             all_ok = False
