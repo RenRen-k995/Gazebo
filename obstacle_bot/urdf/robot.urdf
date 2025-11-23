@@ -1,0 +1,301 @@
+<robot name="obstacle_bot">
+
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="0.5 0.3 0.15"/>
+      </geometry>
+      <material name="blue">
+        <color rgba="0 0 1 1"/>
+      </material>
+    </visual>
+
+    <collision>
+      <geometry>
+        <box size="0.5 0.3 0.15"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="5.0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="0.046875" ixy="0.0" ixz="0.0"
+               iyy="0.113541" iyz="0.0"
+               izz="0.141666"/>
+    </inertial>
+  </link>
+
+  <!-- Lidar -->
+  <link name="lidar_link">
+    <visual>
+      <geometry>
+        <cylinder radius="0.05" length="0.04"/>
+      </geometry>
+      <material name="red">
+        <color rgba="1 0 0 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder radius="0.05" length="0.04"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="0.000083" ixy="0" ixz="0"
+               iyy="0.000083" iyz="0"
+               izz="0.000125"/>
+    </inertial>
+  </link>
+
+    <!-- Left wheel -->
+  <link name="front_left_wheel_link">
+    <visual>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.1" length="0.05"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
+
+    <collision>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.1" length="0.05"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="1.0"/>
+      <origin xyz="0 0 0" rpy="0 1.57 0"/>
+      <inertia ixx="0.0027" ixy="0" ixz="0"
+               iyy="0.0027" iyz="0"
+               izz="0.005"/>
+    </inertial>
+  </link>
+
+    <!-- Front right wheel -->
+  <link name="front_right_wheel_link">
+    <visual>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.1" length="0.05"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.1" length="0.05"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="1.0"/>
+      <origin xyz="0 0 0" rpy="0 1.57 0"/>
+      <inertia ixx="0.0027" ixy="0" ixz="0"
+               iyy="0.0027" iyz="0"
+               izz="0.005"/>
+    </inertial>
+  </link>
+
+  <!-- Back right wheel -->
+  <link name="back_right_wheel_link">
+    <visual>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.1" length="0.05"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.1" length="0.05"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="1.0"/>
+      <origin xyz="0 0 0" rpy="0 1.57 0"/>
+      <inertia ixx="0.0027" ixy="0" ixz="0"
+               iyy="0.0027" iyz="0"
+               izz="0.005"/>
+    </inertial>
+  </link> 
+
+  <!-- Back left wheel -->
+  <link name="back_left_wheel_link">
+    <visual>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.1" length="0.05"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.1" length="0.05"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="1.0"/>
+      <origin xyz="0 0 0" rpy="0 1.57 0"/>
+      <inertia ixx="0.0027" ixy="0" ixz="0"
+               iyy="0.0027" iyz="0"
+               izz="0.005"/>
+    </inertial>
+  </link>
+
+  <!-- Left wheel -->
+  <joint name="back_left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="back_left_wheel_link"/>
+    <origin xyz="-0.15 0.175 -0.05" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <!-- Front right wheel -->
+  <joint name="front_right_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="front_right_wheel_link"/>
+    <origin xyz="0.15 -0.175 -0.05" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <!-- Back right wheel -->
+  <joint name="back_right_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="back_right_wheel_link"/>
+    <origin xyz="-0.15 -0.175 -0.05" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+    <!-- Front left wheel -->
+  <joint name="front_left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="front_left_wheel_link"/>
+    <origin xyz="0.15 0.175 -0.05" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <!-- Lidar joint -->
+  <joint name="lidar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_link"/>
+    <origin xyz="0 0 0.075" rpy="0 0 0"/>
+  </joint>
+
+
+  <gazebo>
+    <plugin filename="libgz-sim-sensors-system.so" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <plugin filename="libgz-sim-diff-drive-system.so" name="gz::sim::systems::DiffDrive">
+      <left_joint>front_left_wheel_joint</left_joint>
+      <left_joint>back_left_wheel_joint</left_joint>
+      <right_joint>front_right_wheel_joint</right_joint>
+      <right_joint>back_right_wheel_joint</right_joint>
+      
+      <wheel_separation>0.35</wheel_separation>
+      <wheel_radius>0.1</wheel_radius>
+      <odom_publish_frequency>20</odom_publish_frequency>
+      
+      <publish_odom_tf>true</publish_odom_tf>
+      <publish_wheel_tf>true</publish_wheel_tf>
+      <tf_topic>/tf</tf_topic>
+      
+      <odom_topic>odom</odom_topic>
+      <topic>cmd_vel</topic>
+      <frame_id>odom</frame_id>
+      <child_frame_id>base_link</child_frame_id>
+    </plugin>
+
+    <plugin filename="libgz-sim-joint-state-publisher-system.so" name="gz::sim::systems::JointStatePublisher">
+      <topic>joint_states</topic>
+    </plugin>
+  </gazebo>
+
+  <gazebo reference="lidar_link">
+    <sensor name="lidar" type="gpu_lidar">
+      <pose>0 0 0 0 0 0</pose>
+      <always_on>true</always_on>
+      <visualize>true</visualize>
+      <update_rate>10</update_rate>
+      <topic>scan</topic>
+      <gz_frame_id>lidar_link</gz_frame_id>
+      <ray>
+        <scan>
+          <horizontal>  
+            <samples>360</samples>
+            <resolution>1</resolution>
+            <min_angle>-3.14</min_angle>
+            <max_angle>3.14</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.08</min>
+          <max>10.0</max>
+          <resolution>0.01</resolution>
+        </range>
+      </ray>
+    </sensor>
+  </gazebo>
+
+  <gazebo reference="front_left_wheel_link">
+    <mu1>1.5</mu1>
+    <mu2>0.7</mu2>
+    <kp>200000.0</kp>
+    <kd>5000.0</kd>
+    <minDepth>0.002</minDepth>
+    <maxVel>0.3</maxVel>
+    <fdir1>1 0 0</fdir1> 
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <gazebo reference="back_left_wheel_link">
+    <mu1>1.5</mu1>
+    <mu2>0.7</mu2>
+    <kp>200000.0</kp>
+    <kd>5000.0</kd>
+    <minDepth>0.002</minDepth>
+    <maxVel>0.3</maxVel>
+    <fdir1>1 0 0</fdir1> 
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <gazebo reference="front_right_wheel_link">
+    <mu1>1.5</mu1>
+    <mu2>0.7</mu2>
+    <kp>200000.0</kp>
+    <kd>5000.0</kd>
+    <minDepth>0.002</minDepth>
+    <maxVel>0.3</maxVel>
+    <fdir1>1 0 0</fdir1> 
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <gazebo reference="back_right_wheel_link">
+    <mu1>1.5</mu1>
+    <mu2>0.7</mu2>
+    <kp>200000.0</kp>
+    <kd>5000.0</kd>
+    <minDepth>0.002</minDepth>
+    <maxVel>0.3</maxVel>
+    <fdir1>1 0 0</fdir1> 
+    <material>Gazebo/Black</material>
+  </gazebo>
+</robot>
