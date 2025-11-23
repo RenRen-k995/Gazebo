@@ -90,6 +90,21 @@ Created multiple launch files for different use cases:
   ```
 - Updated all configurations to use base_footprint where appropriate
 
+### 9. ❌ TF Transform Errors → ✅ Fixed
+**Problem:** Robot status showing "No transform from [link] to [map]" errors due to:
+1. Topic namespacing issues - Gazebo plugins publishing to model-scoped topics
+2. TF publishing conflicts - DiffDrive and robot_state_publisher both publishing wheel transforms
+
+**Solution:**
+- Fixed all Gazebo plugin topics to use global namespace (added `/` prefix):
+  - `/joint_states` - ensures robot_state_publisher receives joint states
+  - `/odom` - ensures tf_broadcaster receives odometry
+  - `/cmd_vel` - ensures velocity commands reach the robot
+  - `/scan` - ensures SLAM receives laser scans
+- Set `publish_wheel_tf: false` in DiffDrive plugin
+- Let robot_state_publisher be the sole publisher of all robot link transforms
+- This eliminates TF conflicts and ensures complete TF tree: map -> odom -> base_link -> {lidar_link, wheel_links}
+
 ## New Features Added
 
 ### 1. SLAM Toolbox Integration
@@ -117,11 +132,12 @@ Created multiple launch files for different use cases:
 ## Files Modified
 
 ### Modified Files
-1. `obstacle_bot/urdf/robot.urdf` - Fixed TF publishing
+1. `obstacle_bot/urdf/robot.urdf` - Fixed TF publishing conflicts and topic namespacing
 2. `obstacle_bot/config/nav2_params.yaml` - Updated frame names
 3. `obstacle_bot/obstacle_bot/avoidance.py` - Enhanced algorithm
 4. `obstacle_bot/obstacle_bot/tf_broadcaster.py` - Added error handling
 5. `README.md` - Complete rewrite with architecture
+6. `TROUBLESHOOTING.md` - Added detailed TF transform error diagnostics
 
 ### New Files Created
 1. `obstacle_bot/config/slam_toolbox_params.yaml` - SLAM configuration
