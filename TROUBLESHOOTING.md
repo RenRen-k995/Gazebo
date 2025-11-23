@@ -9,7 +9,47 @@ python3 obstacle_bot/scripts/check_dependencies.py
 
 ## Common Issues
 
-### 1. Package Not Found Errors
+### 1. Duplicate Package Errors
+
+**Error:**
+```
+ERROR:colcon:colcon test: Duplicate package names not supported:
+- obstacle_bot:
+  - robot2_ws/src/obstacle_bot
+  - ros2_ws/src/Gazebo/obstacle_bot
+```
+
+**Symptoms:**
+- SLAM node not starting (`ros2 node list | grep slam` returns nothing)
+- Odometry topic empty (`ros2 topic echo /odom` returns nothing)
+- TF transform errors about missing frames
+- Nodes using old/incorrect configurations
+
+**Cause:**
+You have multiple copies of the `obstacle_bot` package in different ROS2 workspaces. When you run commands like `ros2 launch obstacle_bot ...`, ROS2 may load the wrong version of the package, potentially an outdated one without the latest fixes.
+
+**Solution:**
+1. **Option A - Remove duplicate (Recommended):**
+   ```bash
+   # Remove the old/duplicate package
+   rm -rf ~/robot2_ws/src/obstacle_bot  # or whichever is the old version
+   cd ~/robot2_ws && colcon build  # rebuild to update workspace
+   ```
+
+2. **Option B - Use specific workspace:**
+   ```bash
+   # Source only the workspace you want to use
+   source ~/ros2_ws/install/setup.bash  # NOT both workspaces
+   ros2 launch obstacle_bot complete_navigation.launch.py
+   ```
+
+3. **Verify correct package is loaded:**
+   ```bash
+   ros2 pkg prefix obstacle_bot
+   # Should show the path to the correct package
+   ```
+
+### 2. Package Not Found Errors
 
 **Error:**
 ```
@@ -23,7 +63,7 @@ colcon build --packages-select obstacle_bot
 source install/setup.bash
 ```
 
-### 2. Missing ROS2 Packages
+### 3. Missing ROS2 Packages
 
 **Error:**
 ```
@@ -42,7 +82,7 @@ sudo apt install ros-${ROS_DISTRO}-navigation2 \
                  ros-${ROS_DISTRO}-joint-state-publisher-gui
 ```
 
-### 3. Gazebo Not Starting
+### 4. Gazebo Not Starting
 
 **Error:**
 ```
@@ -55,7 +95,7 @@ Ensure Gazebo Harmonic is installed:
 sudo apt install gz-harmonic
 ```
 
-### 4. Robot Not Spawning
+### 5. Robot Not Spawning
 
 **Symptoms:**
 - Gazebo opens but no robot appears
@@ -71,7 +111,7 @@ sudo apt install gz-harmonic
    ros2 topic echo /robot_description
    ```
 
-### 5. No Laser Scans
+### 6. No Laser Scans
 
 **Symptoms:**
 - Robot spawns but no laser visualization in RViz
@@ -91,7 +131,7 @@ sudo apt install gz-harmonic
    ros2 param dump /parameter_bridge
    ```
 
-### 6. TF Transform Errors
+### 7. TF Transform Errors
 
 **Error:**
 ```
@@ -107,35 +147,38 @@ Transform from [frame] to [frame] does not exist
 2. **Incomplete TF tree**: Missing transforms in the chain: map -> odom -> base_link -> {lidar_link, wheel_links}
 3. **Topic namespacing issues**: Gazebo plugins publishing to model-scoped topics instead of global topics
 4. **TF publishing conflicts**: Multiple nodes trying to publish the same transform
+5. **Duplicate packages**: Multiple versions of obstacle_bot loaded (see issue #1 above)
 
 **Solution:**
-1. **Wait for initialization**: These errors are normal for the first 5-10 seconds after launch. SLAM starts at t=5s (configurable via TimerAction in launch file) and needs time to initialize.
+1. **Check for duplicate packages first** (see issue #1)
 
-2. Check TF tree:
+2. **Wait for initialization**: These errors are normal for the first 5-10 seconds after launch. SLAM starts at t=5s (configurable via TimerAction in launch file) and needs time to initialize.
+
+3. Check TF tree:
    ```bash
    ros2 run tf2_tools view_frames
    evince frames.pdf
    ```
 
-3. Verify all TF publishers are running:
+4. Verify all TF publishers are running:
    ```bash
    ros2 topic echo /tf --once
    ros2 topic echo /odom --once
    ros2 node list | grep -E "(slam|robot_state|tf_broadcaster)"
    ```
 
-4. Ensure use_sim_time is consistent:
+5. Ensure use_sim_time is consistent:
    ```bash
    ros2 param get /robot_state_publisher use_sim_time
    ros2 param get /slam_toolbox use_sim_time
    ```
 
-5. Check clock is publishing:
+6. Check clock is publishing:
    ```bash
    ros2 topic hz /clock
    ```
 
-6. Verify joint_states are being published:
+7. Verify joint_states are being published:
    ```bash
    ros2 topic echo /joint_states --once
    ```
@@ -147,7 +190,7 @@ Transform from [frame] to [frame] does not exist
 - Check that all topics use global namespace (start with `/`)
 
 
-### 7. SLAM Not Building Map
+### 8. SLAM Not Building Map
 
 **Symptoms:**
 - Map topic exists but map is empty
@@ -170,7 +213,7 @@ Transform from [frame] to [frame] does not exist
    ros2 topic info /scan
    ```
 
-### 8. Navigation Not Working
+### 9. Navigation Not Working
 
 **Symptoms:**
 - Can't set goal pose
@@ -189,7 +232,7 @@ Transform from [frame] to [frame] does not exist
    ros2 topic echo /local_costmap/costmap
    ```
 
-### 9. RViz Crashes or Slow
+### 10. RViz Crashes or Slow
 
 **Solution:**
 1. Reduce visualization load:
@@ -204,7 +247,7 @@ Transform from [frame] to [frame] does not exist
    # Edit complete_navigation.launch.py and comment out rviz node
    ```
 
-### 10. Multiple Node Errors on Shutdown
+### 11. Multiple Node Errors on Shutdown
 
 **Symptoms:**
 - Many error messages when pressing Ctrl+C

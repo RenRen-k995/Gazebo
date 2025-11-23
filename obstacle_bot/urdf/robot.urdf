@@ -221,7 +221,6 @@
       -->
       <publish_odom_tf>false</publish_odom_tf>
       <publish_wheel_tf>false</publish_wheel_tf>
-      <tf_topic>/tf</tf_topic>
       
       <odom_topic>/odom</odom_topic>
       <topic>/cmd_vel</topic>
