@@ -1,130 +1,52 @@
-# Quick Start Guide
+# Quick Start Guide - ROS2 Navigation with Gazebo Harmonic
 
-## Option 1: Complete Navigation Stack (Recommended)
+Get up and running with ROS2 navigation in minutes!
 
-This launches Gazebo, SLAM, Nav2, and RViz for full autonomous navigation with mapping.
+## Prerequisites Check
 
-```bash
-# Source ROS2 workspace
-source /opt/ros/${ROS_DISTRO}/setup.bash
-cd ~/ros2_ws
-source install/setup.bash
+Before starting, ensure you have:
+- ROS2 (Humble or Jazzy)
+- Gazebo Harmonic
+- A working ROS2 workspace
 
-# Launch everything
-ros2 launch obstacle_bot complete_navigation.launch.py
-```
+## 5-Minute Setup
 
-### What to expect:
-1. **Gazebo** opens with a house environment
-2. **Robot** spawns in the center
-3. **RViz** opens showing the robot, laser scans, and map
-4. **SLAM** starts building a map as the robot moves
-5. **Nav2** enables autonomous navigation
-
-### How to use:
-1. Wait 10-15 seconds for all nodes to initialize
-2. In RViz:
-   - Click "2D Pose Estimate" (top toolbar)
-   - Click and drag on the map where the robot is to set initial pose
-   - Click "2D Goal Pose" (top toolbar)
-   - Click and drag to set a navigation goal
-3. Watch the robot autonomously navigate!
-
-## Option 2: Simple Obstacle Avoidance
-
-For testing basic reactive obstacle avoidance without Nav2/SLAM.
+### 1. Install Dependencies (2 minutes)
 
 ```bash
-ros2 launch obstacle_bot simple_avoidance.launch.py
+sudo apt update
+sudo apt install -y \
+  ros-${ROS_DISTRO}-navigation2 \
+  ros-${ROS_DISTRO}-nav2-bringup \
+  ros-${ROS_DISTRO}-slam-toolbox \
+  ros-${ROS_DISTRO}-ros-gz \
+  ros-${ROS_DISTRO}-robot-state-publisher \
+  ros-${ROS_DISTRO}-robot-localization \
+  ros-${ROS_DISTRO}-interactive-marker-twist-server
 ```
 
-The robot will:
-- Drive forward when path is clear
-- Turn away from obstacles detected by lidar
-- Choose the direction with more free space
+### 2. Build the Packages (1 minute)
 
-## Option 3: Manual Control Only
-
-Just Gazebo simulation without autonomous navigation.
-
-```bash
-# Terminal 1: Launch Gazebo
-ros2 launch obstacle_bot gazebo.launch.py
-
-# Terminal 2: Send manual commands
-ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.5, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}"
-```
-
-## Troubleshooting
-
-### "No module named 'ament_index_python'"
-You need to install ROS2 and source it:
-```bash
-source /opt/ros/humble/setup.bash  # or jazzy
-```
-
-### "Package 'obstacle_bot' not found"
-Build the package first:
 ```bash
 cd ~/ros2_ws
-colcon build --packages-select obstacle_bot
+colcon build --packages-select bme_ros2_navigation bme_ros2_navigation_py
 source install/setup.bash
 ```
 
-### Robot not visible in Gazebo
-- Check if robot spawned: `ros2 topic list | grep robot_description`
-- Try restarting the launch file
-
-### No map appearing in RViz
-- SLAM needs motion to build a map
-- Either:
-  - Use Nav2 to send a goal pose
-  - Manually drive: `ros2 run teleop_twist_keyboard teleop_twist_keyboard`
-  - Run obstacle avoidance in another terminal
-
-### Clock/TF warnings
-These are normal during startup. Wait 10-15 seconds for all nodes to synchronize.
-
-## Testing Navigation
-
-### 1. Build a map first:
-```bash
-ros2 launch obstacle_bot complete_navigation.launch.py
-```
-
-Drive around (using Nav2 goals or teleop) to build a complete map.
-
-### 2. Save the map (optional):
-```bash
-ros2 run nav2_map_server map_saver_cli -f ~/my_map
-```
-
-### 3. Navigate:
-Set goal poses in RViz and watch autonomous navigation!
-
-## Key Topics
-
-Monitor these topics to debug issues:
+### 3. Test Basic Simulation (2 minutes)
 
 ```bash
-# Laser scan data
-ros2 topic echo /scan
-
-# Odometry
-ros2 topic echo /odom
-
-# Velocity commands
-ros2 topic echo /cmd_vel
-
-# Map
-ros2 topic echo /map
-
-# TF tree
-ros2 run tf2_tools view_frames
+ros2 launch bme_ros2_navigation spawn_robot.launch.py
 ```
 
-## Performance Tips
+You should see Gazebo Harmonic with a robot and home environment.
 
-- **Slow simulation?** Reduce RViz display rates or disable some visualizations
-- **Navigation failing?** Increase costmap obstacle inflation radius
-- **Map not accurate?** Adjust SLAM parameters in `slam_toolbox_params.yaml`
+## Common First Tasks
+
+See the full [README.md](README.md) for detailed instructions on:
+- SLAM Mapping
+- Localization
+- Autonomous Navigation
+- Waypoint Following
+
+For detailed troubleshooting, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
