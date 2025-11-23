@@ -214,6 +214,11 @@
       <wheel_radius>0.1</wheel_radius>
       <odom_publish_frequency>20</odom_publish_frequency>
       
+      <!-- TF Publishing Configuration:
+           - publish_odom_tf: false - Let tf_broadcaster handle odom->base_link transform
+           - publish_wheel_tf: false - Let robot_state_publisher handle all link transforms
+             This prevents TF conflicts between DiffDrive and robot_state_publisher
+      -->
       <publish_odom_tf>false</publish_odom_tf>
       <publish_wheel_tf>false</publish_wheel_tf>
       <tf_topic>/tf</tf_topic>

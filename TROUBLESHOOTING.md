@@ -103,13 +103,13 @@ Transform from [frame] to [frame] does not exist
 ```
 
 **Common Causes:**
-1. **SLAM not running**: The `map` frame is published by SLAM Toolbox. If SLAM hasn't started yet (it starts 5 seconds after launch), you'll see these errors initially.
+1. **SLAM not running**: The `map` frame is published by SLAM Toolbox. If SLAM hasn't started yet, you'll see these errors initially. By default, SLAM starts 5 seconds after launch (configurable in `complete_navigation.launch.py` line 99-100).
 2. **Incomplete TF tree**: Missing transforms in the chain: map -> odom -> base_link -> {lidar_link, wheel_links}
 3. **Topic namespacing issues**: Gazebo plugins publishing to model-scoped topics instead of global topics
 4. **TF publishing conflicts**: Multiple nodes trying to publish the same transform
 
 **Solution:**
-1. **Wait for initialization**: These errors are normal for the first 5-10 seconds after launch. SLAM starts at t=5s and needs time to initialize.
+1. **Wait for initialization**: These errors are normal for the first 5-10 seconds after launch. SLAM starts at t=5s (configurable via TimerAction in launch file) and needs time to initialize.
 
 2. Check TF tree:
    ```bash
