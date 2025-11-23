@@ -95,25 +95,57 @@ sudo apt install gz-harmonic
 
 **Error:**
 ```
+No transform from [lidar_link] to [map]
+No transform from [base_link] to [map]
+No transform from [wheel_link] to [map]
 Lookup would require extrapolation into the past
 Transform from [frame] to [frame] does not exist
 ```
 
+**Common Causes:**
+1. **SLAM not running**: The `map` frame is published by SLAM Toolbox. If SLAM hasn't started yet, you'll see these errors initially. By default, SLAM starts 5 seconds after launch (configurable in `complete_navigation.launch.py` line 99-100).
+2. **Incomplete TF tree**: Missing transforms in the chain: map -> odom -> base_link -> {lidar_link, wheel_links}
+3. **Topic namespacing issues**: Gazebo plugins publishing to model-scoped topics instead of global topics
+4. **TF publishing conflicts**: Multiple nodes trying to publish the same transform
+
 **Solution:**
-1. Check TF tree:
+1. **Wait for initialization**: These errors are normal for the first 5-10 seconds after launch. SLAM starts at t=5s (configurable via TimerAction in launch file) and needs time to initialize.
+
+2. Check TF tree:
    ```bash
    ros2 run tf2_tools view_frames
    evince frames.pdf
    ```
-2. Ensure use_sim_time is consistent:
+
+3. Verify all TF publishers are running:
+   ```bash
+   ros2 topic echo /tf --once
+   ros2 topic echo /odom --once
+   ros2 node list | grep -E "(slam|robot_state|tf_broadcaster)"
+   ```
+
+4. Ensure use_sim_time is consistent:
    ```bash
    ros2 param get /robot_state_publisher use_sim_time
    ros2 param get /slam_toolbox use_sim_time
    ```
-3. Check clock is publishing:
+
+5. Check clock is publishing:
    ```bash
    ros2 topic hz /clock
    ```
+
+6. Verify joint_states are being published:
+   ```bash
+   ros2 topic echo /joint_states --once
+   ```
+
+**If errors persist after 15 seconds:**
+- Check that `/joint_states` topic is publishing (should show wheel joint positions)
+- Verify `/odom` topic has data (needed for tf_broadcaster)
+- Ensure `/scan` topic has laser data (needed for SLAM)
+- Check that all topics use global namespace (start with `/`)
+
 
 ### 7. SLAM Not Building Map
 
