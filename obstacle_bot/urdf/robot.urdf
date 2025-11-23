@@ -214,7 +214,7 @@
       <wheel_radius>0.1</wheel_radius>
       <odom_publish_frequency>20</odom_publish_frequency>
       
-      <publish_odom_tf>true</publish_odom_tf>
+      <publish_odom_tf>false</publish_odom_tf>
       <publish_wheel_tf>true</publish_wheel_tf>
       <tf_topic>/tf</tf_topic>
       
