@@ -2,6 +2,12 @@
 
 A complete ROS2 navigation and obstacle avoidance robot project using Gazebo Harmonic, SLAM Toolbox, and Nav2.
 
+## 📚 Documentation
+
+- **[Quick Start Guide](QUICKSTART.md)** - Get started in minutes
+- **[Troubleshooting Guide](TROUBLESHOOTING.md)** - Common issues and solutions
+- **[Full Documentation](#usage)** - Detailed usage instructions below
+
 ## Features
 
 - **Differential Drive Robot**: 4-wheel robot with lidar sensor
@@ -20,6 +26,12 @@ A complete ROS2 navigation and obstacle avoidance robot project using Gazebo Har
 
 ## Installation
 
+**Check dependencies first:**
+```bash
+python3 obstacle_bot/scripts/check_dependencies.py
+```
+
+**Install ROS2 dependencies:**
 ```bash
 # Install dependencies
 sudo apt update
@@ -88,17 +100,48 @@ obstacle_bot/
 │   ├── slam_toolbox_params.yaml # SLAM configuration
 │   └── nav2.rviz                # RViz visualization config
 ├── launch/
-│   ├── complete_navigation.launch.py  # Main launch file
-│   ├── launch_sim.launch.py           # Simulation with Nav2
+│   ├── complete_navigation.launch.py  # Main launch file (SLAM + Nav2 + RViz)
+│   ├── simple_avoidance.launch.py     # Simple reactive avoidance
+│   ├── launch_sim.launch.py           # Simulation with Nav2 only
 │   ├── gazebo.launch.py               # Gazebo only
 │   └── response.launch.py             # Robot visualization
 ├── obstacle_bot/
-│   ├── avoidance.py             # Simple obstacle avoidance
+│   ├── avoidance.py             # Simple obstacle avoidance node
 │   └── tf_broadcaster.py        # TF transform publisher
+├── scripts/
+│   └── check_dependencies.py    # Verify ROS2 dependencies
 ├── urdf/
-│   └── robot.urdf               # Robot description
+│   └── robot.urdf               # Robot description (4-wheel diff drive + lidar)
 └── worlds/
     └── house.sdf                # Gazebo world file
+```
+
+## System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         Gazebo Harmonic                          │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
+│  │   Physics    │  │ DiffDrive    │  │    Lidar     │          │
+│  │   Engine     │  │   Plugin     │  │    Sensor    │          │
+│  └──────────────┘  └──────────────┘  └──────────────┘          │
+└─────────────────────────────────────────────────────────────────┘
+                              ▲ │
+                    ros_gz_bridge
+                              │ ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                            ROS 2                                 │
+│                                                                   │
+│  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐    │
+│  │ tf_broadcaster │  │  SLAM Toolbox  │  │     Nav2       │    │
+│  │ (odom->base)   │  │  (map->odom)   │  │  (planning)    │    │
+│  └────────────────┘  └────────────────┘  └────────────────┘    │
+│                                                                   │
+│  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐    │
+│  │ robot_state_   │  │   obstacle_    │  │     RViz2      │    │
+│  │  publisher     │  │   avoidance    │  │ (visualization)│    │
+│  └────────────────┘  └────────────────┘  └────────────────┘    │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ## TF Tree Structure
