@@ -168,7 +168,10 @@ def generate_launch_description():
         package='mogi_trajectory_server',
         executable='mogi_trajectory_server',
         name='mogi_trajectory_server',
-        parameters=[{'reference_frame_id': 'map'}]
+        parameters=[
+            {'reference_frame_id': 'map',
+             'use_sim_time': LaunchConfiguration('use_sim_time')}
+        ]
     )
 
     ekf_node = Node(
@@ -186,7 +189,10 @@ def generate_launch_description():
         package='interactive_marker_twist_server',
         executable='marker_server',
         name='twist_server_node',
-        parameters=[interactive_marker_config_file_path],
+        parameters=[
+            interactive_marker_config_file_path,
+            {'use_sim_time': LaunchConfiguration('use_sim_time')}
+        ],
         output='screen',
     )
 
